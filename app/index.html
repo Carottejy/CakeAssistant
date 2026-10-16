@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cake Assistant</title>
+  <meta name="description" content="Rassemble tes recettes de pâtisserie préférées et calcule les quantités pour ton gâteau.">
+  <meta name="theme-color" content="#ffe4ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#2b1d19" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/favicon-48.png" sizes="48x48">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Cake Assistant">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ============ Accueil / connexion ============ -->
+  <section id="auth-view" class="view" hidden>
+    <div class="hero">
+      <div class="hero-parade" aria-hidden="true">
+        <img src="img/strawberry.svg" alt="" class="float f1">
+        <img src="img/macaron.svg" alt="" class="float f2">
+        <img src="img/cupcake.svg" alt="" class="hero-mascot">
+        <img src="img/donut.svg" alt="" class="float f3">
+        <img src="img/cake.svg" alt="" class="float f4">
+      </div>
+      <h1 class="brand-title">Cake Assistant</h1>
+      <p class="hero-sub">Rassemble tes recettes de pâtisserie préférées, assemble-les en un gâteau et obtiens les bonnes quantités pour ton moule ou ton nombre d'invités.</p>
+      <ul class="hero-points">
+        <li><img src="img/cream.svg" alt=""> Enregistre des recettes depuis n'importe quel site</li>
+        <li><img src="img/tart.svg" alt=""> Combine génoise, crème, insert…</li>
+        <li><img src="img/rolling.svg" alt=""> Quantités ajustées automatiquement</li>
+      </ul>
+    </div>
+
+    <div class="card auth-card">
+      <div class="tabs" role="tablist">
+        <button role="tab" class="tab active" data-auth-tab="login" aria-selected="true">Connexion</button>
+        <button role="tab" class="tab" data-auth-tab="signup" aria-selected="false">Inscription</button>
+      </div>
+      <form id="auth-form" autocomplete="on">
+        <label>E-mail
+          <input type="email" name="email" required autocomplete="email" placeholder="toi@exemple.fr">
+        </label>
+        <label>Mot de passe
+          <input type="password" name="password" required minlength="6" autocomplete="current-password" placeholder="6 caractères minimum">
+        </label>
+        <button class="btn btn-primary btn-block" type="submit" id="auth-submit">Se connecter</button>
+        <button class="link-btn" type="button" id="forgot-btn">Mot de passe oublié ?</button>
+        <p class="form-msg" id="auth-msg" role="status"></p>
+      </form>
+      <form id="reset-form" hidden>
+        <p class="muted">Choisis un nouveau mot de passe.</p>
+        <label>Nouveau mot de passe
+          <input type="password" name="password" required minlength="6" autocomplete="new-password">
+        </label>
+        <button class="btn btn-primary btn-block" type="submit">Enregistrer</button>
+        <p class="form-msg" id="reset-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ Application ============ -->
+  <div id="app-view" class="view" hidden>
+    <header class="topbar">
+      <a class="brand" href="#recettes"><img src="img/logo.svg" alt="" width="40" height="40"><span>Cake Assistant</span></a>
+      <nav class="mainnav" aria-label="Navigation principale">
+        <a href="#recettes" data-nav="recettes"><img src="img/cupcake.svg" alt="">Mes recettes</a>
+        <a href="#gateau" data-nav="gateau"><img src="img/cake.svg" alt="">Mon gâteau <span class="badge" id="bake-count" hidden></span></a>
+        <a href="#projets" data-nav="projets"><img src="img/tart.svg" alt="">Projets</a>
+      </nav>
+      <div class="user">
+        <span class="user-email" id="user-email"></span>
+        <button class="btn btn-ghost btn-sm" id="logout-btn">Déconnexion</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Recettes -->
+      <section id="page-recettes" class="page" hidden>
+        <div class="welcome card">
+          <img src="img/cupcake.svg" alt="" class="welcome-mascot">
+          <div>
+            <h2 id="welcome-title">Coucou !</h2>
+            <p class="muted" id="welcome-sub">Ajoute le lien d'une recette, ou utilise l'extension du navigateur pendant que tu surfes.</p>
+          </div>
+        </div>
+
+        <form class="add-bar card" id="add-form">
+          <input type="url" name="url" id="add-url" placeholder="Colle le lien d'une recette (https://…)" required>
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </form>
+
+        <div class="filters">
+          <input type="search" id="search" placeholder="Rechercher une recette…" aria-label="Rechercher">
+          <div class="chips" id="category-chips"></div>
+        </div>
+
+        <div class="grid" id="recipe-grid"></div>
+        <div class="empty" id="recipes-empty" hidden>
+          <img src="img/rolling.svg" alt="">
+          <p><strong>Aucune recette pour l'instant.</strong><br>Colle un lien ci-dessus ou clique sur l'extension Cake Assistant sur une page de recette.</p>
+        </div>
+      </section>
+
+      <!-- Mon gâteau -->
+      <section id="page-gateau" class="page" hidden>
+        <div class="card bake-head">
+          <label class="bake-name">Nom du gâteau
+            <input type="text" id="bake-name" placeholder="Ex. : Fraisier de mamie">
+          </label>
+          <div class="target">
+            <div class="segmented" role="radiogroup" aria-label="Calculer pour">
+              <button type="button" data-mode="servings" class="seg active" aria-pressed="true">Nombre de personnes</button>
+              <button type="button" data-mode="mold" class="seg" aria-pressed="false">Taille du moule</button>
+            </div>
+            <div class="target-fields" id="target-servings">
+              <label>Personnes
+                <div class="stepper">
+                  <button type="button" class="btn btn-round" data-step="-1" aria-label="Moins">−</button>
+                  <input type="number" id="target-servings-input" min="1" max="200" value="8" inputmode="numeric">
+                  <button type="button" class="btn btn-round" data-step="1" aria-label="Plus">+</button>
+                </div>
+              </label>
+            </div>
+            <div class="target-fields" id="target-mold" hidden></div>
+            <p class="muted small" id="target-hint"></p>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h2>Préparations</h2>
+          <button class="btn btn-secondary btn-sm" id="pick-btn">+ Ajouter une préparation</button>
+        </div>
+        <div id="bake-components"></div>
+        <div class="empty" id="bake-empty">
+          <img src="img/cake.svg" alt="">
+          <p><strong>Ton gâteau est vide.</strong><br>Ajoute les préparations qui le composent : une génoise, une crème, un curd…</p>
+        </div>
+
+        <div id="shopping" hidden>
+          <div class="section-title">
+            <h2>Liste totale des ingrédients</h2>
+            <div class="row-btns">
+              <button class="btn btn-ghost btn-sm" id="copy-list">Copier</button>
+              <button class="btn btn-ghost btn-sm" id="print-btn">Imprimer</button>
+            </div>
+          </div>
+          <div class="card"><ul class="shop-list" id="shop-list"></ul></div>
+        </div>
+
+        <div class="bake-actions">
+          <button class="btn btn-ghost" id="new-bake">Nouveau gâteau</button>
+          <button class="btn btn-primary" id="save-bake">Enregistrer le projet</button>
+        </div>
+      </section>
+
+      <!-- Projets -->
+      <section id="page-projets" class="page" hidden>
+        <div class="section-title"><h2>Mes projets de gâteaux</h2></div>
+        <div class="grid" id="bake-list"></div>
+        <div class="empty" id="bakes-empty" hidden>
+          <img src="img/tart.svg" alt="">
+          <p><strong>Aucun projet enregistré.</strong><br>Compose un gâteau dans « Mon gâteau » puis enregistre-le pour le retrouver ici.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottomnav" aria-label="Navigation">
+      <a href="#recettes" data-nav="recettes"><img src="img/cupcake.svg" alt=""><span>Recettes</span></a>
+      <a href="#gateau" data-nav="gateau"><img src="img/cake.svg" alt=""><span>Mon gâteau</span></a>
+      <a href="#projets" data-nav="projets"><img src="img/tart.svg" alt=""><span>Projets</span></a>
+    </nav>
+  </div>
+
+  <!-- Fiche recette -->
+  <dialog id="recipe-dialog" class="sheet">
+    <form method="dialog" id="recipe-form">
+      <header class="sheet-head">
+        <h2 id="rd-heading">Recette</h2>
+        <button class="btn btn-round btn-ghost" value="cancel" aria-label="Fermer">✕</button>
+      </header>
+      <div class="sheet-body">
+        <label>Titre <input type="text" name="title" required></label>
+        <p class="small"><a id="rd-link" href="#" target="_blank" rel="noopener noreferrer">Voir la page d'origine ↗</a></p>
+        <div class="two-col">
+          <label>Catégorie <select name="category" id="rd-category"></select></label>
+          <label>Personnes (recette d'origine) <input type="number" name="base_servings" min="1" step="1" inputmode="numeric" placeholder="ex. 8"></label>
+        </div>
+        <fieldset>
+          <legend>Moule de la recette d'origine</legend>
+          <div id="rd-mold"></div>
+        </fieldset>
+        <label>Ingrédients <span class="muted small">(une ligne par ingrédient, ex. « 250 g de farine »)</span>
+          <textarea name="ingredients" rows="9" id="rd-ingredients"></textarea>
+        </label>
+        <div class="parsed" id="rd-parsed" aria-live="polite"></div>
+        <details>
+          <summary>Étapes de la recette</summary>
+          <textarea name="steps" rows="8" placeholder="Une étape par ligne"></textarea>
+        </details>
+        <label>Notes <textarea name="notes" rows="3" placeholder="Astuces, temps de cuisson…"></textarea></label>
+      </div>
+      <footer class="sheet-foot">
+        <button class="btn btn-danger btn-sm" type="button" id="rd-delete">Supprimer</button>
+        <span class="spacer"></span>
+        <button class="btn btn-secondary" type="button" id="rd-addbake">Ajouter au gâteau</button>
+        <button class="btn btn-primary" type="submit" value="save">Enregistrer</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Sélecteur de préparations -->
+  <dialog id="picker-dialog" class="sheet">
+    <form method="dialog">
+      <header class="sheet-head">
+        <h2>Choisir les préparations</h2>
+        <button class="btn btn-round btn-ghost" value="cancel" aria-label="Fermer">✕</button>
+      </header>
+      <div class="sheet-body">
+        <input type="search" id="picker-search" placeholder="Rechercher…" aria-label="Rechercher">
+        <ul class="picker-list" id="picker-list"></ul>
+      </div>
+      <footer class="sheet-foot">
+        <span class="spacer"></span>
+        <button class="btn btn-primary" value="ok">Valider</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="loading" id="boot"><img src="img/cupcake.svg" alt=""><p>Préchauffage du four…</p></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

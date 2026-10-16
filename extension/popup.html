@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Cake Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="head">
+    <img src="img/logo.svg" alt="" width="34" height="34">
+    <h1>Cake Assistant</h1>
+    <button class="ghost small" id="logout" hidden>Déconnexion</button>
+  </header>
+
+  <!-- Connexion -->
+  <section id="v-login" hidden>
+    <div class="hello"><img src="img/cupcake.svg" alt=""><p>Connecte-toi avec ton compte Cake Assistant pour enregistrer des recettes.</p></div>
+    <form id="login-form">
+      <label>E-mail <input type="email" name="email" required autocomplete="email"></label>
+      <label>Mot de passe <input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="primary" type="submit">Se connecter</button>
+      <p class="msg" id="login-msg"></p>
+    </form>
+    <p class="small">Pas encore de compte ? <a href="#" id="open-app-signup">Crée-le dans l'application</a>.</p>
+  </section>
+
+  <!-- Chargement -->
+  <section id="v-loading" hidden>
+    <div class="center"><img src="img/cupcake.svg" alt="" class="bounce"><p>Lecture de la recette…</p></div>
+  </section>
+
+  <!-- Recette détectée -->
+  <section id="v-recipe" hidden>
+    <div class="preview">
+      <div class="thumb" id="thumb"><img src="img/strawberry.svg" alt=""></div>
+      <div class="meta">
+        <span class="site" id="site"></span>
+        <span class="status" id="status"></span>
+      </div>
+    </div>
+    <form id="save-form">
+      <label>Titre <input type="text" name="title" required></label>
+      <label id="source-wrap" hidden>Préparation à enregistrer
+        <select name="source" id="source"></select>
+      </label>
+      <div class="row">
+        <label>Catégorie
+          <select name="category">
+            <option value="biscuit">Biscuit & génoise</option>
+            <option value="creme">Crème & mousse</option>
+            <option value="insert">Insert & fruit</option>
+            <option value="glacage">Glaçage</option>
+            <option value="pate">Pâte & fond</option>
+            <option value="decor">Décor & croustillant</option>
+            <option value="autre">Autre</option>
+          </select>
+        </label>
+        <label>Personnes <input type="number" name="servings" min="1" max="100" placeholder="?"></label>
+      </div>
+      <p class="small" id="mold-info"></p>
+      <details id="ing-details">
+        <summary id="ing-summary"></summary>
+        <ul id="ing-list"></ul>
+      </details>
+      <p class="tip small" id="tip"></p>
+      <p class="warn small" id="dup" hidden></p>
+      <button class="primary" type="submit" id="save-btn">Enregistrer la recette</button>
+      <p class="msg" id="save-msg"></p>
+    </form>
+  </section>
+
+  <!-- Succès -->
+  <section id="v-done" hidden>
+    <div class="center">
+      <img src="img/cupcake.svg" alt="" class="bounce">
+      <p><strong>Recette enregistrée !</strong></p>
+      <p class="small" id="done-text"></p>
+      <button class="primary" id="open-app">Ouvrir Cake Assistant</button>
+      <button class="ghost" id="again">Enregistrer une autre préparation</button>
+    </div>
+  </section>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
